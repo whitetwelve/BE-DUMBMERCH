@@ -5,7 +5,7 @@ const router = require('./src/routes')
 
 const app = express()
 
-const port = 800
+const port = 5000
 
 app.use(express.json())
 
