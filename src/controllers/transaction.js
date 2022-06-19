@@ -53,15 +53,53 @@ exports.addTransaction = async (req, res) => {
         await transaction.create(data)
 
         res.send({
-            status: 'success',
-            message: 'Data transaksi berhasil ditambahkan!'
+            status  : 'success',
+            message : 'Data transaksi berhasil ditambahkan!'
         })
 
     } catch (error) {
         console.log(error)
+
         res.send({
-            status: 'failed',
-            message: 'Server Error'
+            status  : 'failed',
+            message : 'Server Error'
+        })
+    }
+}
+
+exports.deleteTransaction = async (req, res) => {
+    try {
+        const id = req.params.id
+
+        const data = await transaction.findOne({
+            where : {
+                id
+            }
+        })
+
+        if(!data){
+            return res.send({
+                message :`Transaksi dengan id ${id} tidak ditemukan!`
+            })
+        }
+
+        await product.destroy({
+            where : {
+                id
+            }
+        })
+
+        res.send({
+            status  : 'Success',
+            message : `Transaksi dengan id ${id} berhasil dihapus!`
+        })
+
+    } catch (error) {
+        console.log(error)
+        
+        res.send({
+            status  : 'error',
+            message : 'Server error!'
         })
     }
 }

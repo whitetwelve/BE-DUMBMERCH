@@ -1,108 +1,119 @@
-const {product, user, category, categoryProduct} = require('../../models')
+const { product , user , category , categoryProduct } = require('../../models')
 
-exports.getProducts = async (req, res) =>{
+
+exports.getProducts = async (req, res) => {
     try {
-        const data = await product.findAll({
+        let data = await product.findAll({
             include: [
                 {
-                model: user,
-                as: "user",
+                model : user,
+                as    : "user",
                 attributes: {
-                    exclude: ["createdAt", "updatedAt"],
-            },
+                    exclude: [ "createdAt" , "updatedAt" ]
+            }
                 },
             {
-                model: category,
-                as: "categories",
+                model : category,
+                as    : "categories",
                 through: {
-                    model:categoryProduct,
-                        as: 'bridge'
+                    model : categoryProduct,
+                    as    : 'bridge',
+                    attributes : {
+                        exclude : [ 'createdAt' , 'updateAt' ]
+                    }
                 },
-                attributes: {
-                    exclude: ["createdAt", "updatedAt", ],
-                },
+                attributes : {
+                    exclude : [ "createdAt" , "updatedAt" ],
+                }
             }
         ],
-            attributes: {
-                exclude: ['createdAt', 'updatedAt', 'idUser']
+            attributes : {
+                exclude : [ 'createdAt' , 'updatedAt' , 'idUser' ]
             }
         })
 
-        res.send({
-            status : 'Success!',
-            message : "Data produk berhasil ditampilkan!",
-            product : data
+        data = data.map((item) => {
+            item.image = 'http://localhost:5000/uploads/' + item.image
+
+            return item
         })
-    } catch (error) {
-        console.log(error);
+        
         res.send({
-            status : 'failed',
+            status  : 'Success!',
+            message : "Data produk berhasil ditampilkan!",
+            data
+        })
+
+    } catch (error) {
+        console.log(error)
+
+        res.send({
+            status  : 'failed',
             message : 'Server Error'
         })
     }
 }
 
-exports.getDetailProduct = async (req, res) =>{
+exports.getDetailProduct = async (req, res) => {
     try {
-        const id = req.params.id
+        const id   = req.params.id
 
-        const data = await user.findOne({
-            where :{
+        const data = await product.findOne({
+            where : {
                 id
             },
-            include: {
-                model : product,
-                as : 'productDetail',
-                attributes: {
-                    exclude: ['createdAt', 'updatedAt']
-                }
-            },
-            attributes : {
-                exclude:['createdAt', 'updatedAt', 'idUser']
+            attributes  : {
+                exclude : [ 'createdAt' , 'updatedAt' , 'idUser' ]
             }
         })
 
     res.send({
-            status : 'Success!',
+            status  : 'Success!',
             message : `Data produk id :${id} berhasil ditampilkan!`,
             data
         })
+
     } catch (error) {
-        console.log(error);
+        console.log(error)
+        
         res.send({
-            status : 'failed',
+            status  : 'failed',
             message : 'Server Error'
         })
     }
 }
 
-exports.addProduct = async (req, res) =>{
+exports.addProduct = async (req, res) => {
     try {
-        const data = req.body
 
-        await product.create(data)
+        const data = await product.create({
+            ...req.body,
+            image  : req.file?.filename,
+            idUser : req.user.id
+        })
 
         res.send({
-            status : 'Success!',
+            status  : 'Success!',
             message : 'Data produk berhasil ditambahkan!',
             data
         })
 
     } catch (error) {
-        console.log(error);
-        res.send({
-            status : 'failed',
+        console.log(error)
+
+        res.status(500).send({
+            status  : 'failed',
             message : 'Server Error'
         })
     }
 }
 
-exports.deleteProduct = async (req, res) =>{
+exports.deleteProduct = async (req, res) => {
     try {
         const id = req.params.id
 
         const data = await product.findOne({
-            where:{
+            where : {
                 id
             }
         })
@@ -114,20 +125,20 @@ exports.deleteProduct = async (req, res) =>{
         }
 
         await product.destroy({
-            where: {
+            where : {
                 id
             }
         })
 
         res.send({
-            status: 'Success',
-            message: `Produk dengan id ${id} berhasil dihapus!`
+            status  : 'Success',
+            message : `Produk dengan id ${id} berhasil dihapus!`
         })
 
     } catch (error) {
-        console.log(error);
+        console.log(error)
         res.send({
-            status : 'error',
+            status  : 'error',
             message : 'Server error!'
         })
     }
@@ -139,21 +150,22 @@ exports.updateProduct = async (req, res) => {
         
         const data = req.body
         await product.update(data, {
-            where :{
+            where : {
                 id
             }
-        });
-    
+        })
+
         res.send({
-            status: "success",
-            message: `Update data product dengan id : ${id} berhasil!`,
+            status  : "success",
+            message : `Update data product dengan id : ${id} berhasil!`,
             data
-        });
-        } catch (error) {
-        console.log(error);
+        })
+    } catch (error) {
+        console.log(error)
+
         res.send({
-            status: "failed",
-            message: "Server Error",
-        });
-        }
-    };
+            status  : "failed",
+            message : "Server Error"
+        })
+    }
+}

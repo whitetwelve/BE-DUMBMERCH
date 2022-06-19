@@ -1,41 +1,61 @@
-const express = require("express");
+// IMPORT PACKAGES
+const express = require("express")
+const router  = express.Router()
 
-const router = express.Router();
 
-// Controller
-const {addUsers, getUsers, getUser, updateUser, deleteUser, getProfile} = require ("../controllers/user")
-const {getProducts,getDetailProduct, addProduct, deleteProduct, updateProduct} = require ('../controllers/product')
-const {getTransactions, addTransaction} = require('../controllers/transaction')
-const {getCategory,addCategory,getDetailCategory, deleteCategory,updateCategory} = require('../controllers/category')
-const {register} = require('../controllers/auth')
+// CONTROLLER
+const { addUsers , getUsers , getUser , updateUser , deleteUser , getProfile , addProfile , updateProfile , getProfiles } = require("../controllers/user")
+const { getProducts , getDetailProduct , addProduct , deleteProduct , updateProduct } = require('../controllers/product')
+const { getTransactions , addTransaction , deleteTransaction } = require('../controllers/transaction')
+const { getCategory , addCategory , getDetailCategory , deleteCategory,updateCategory } = require('../controllers/category')
+const { register , login , checkAuth } = require('../controllers/auth')
 
-// Route untuk user
-router.post("/user", addUsers)
-router.get("/users", getUsers)
-router.get("/user/:id", getUser)
-router.patch("/update-user/:id", updateUser)
-router.delete("/user/:id", deleteUser)
-router.get("/profile/:id", getProfile)
 
-// Route untuk produk
-router.get("/products", getProducts)
-router.get("/detail-product/:id", getDetailProduct)
-router.post("/product", addProduct)
-router.delete("/product/:id", deleteProduct)
-router.patch("/update-product/:id", updateProduct)
+// MIDDLEWARE
+const { auth } = require('../middlewares/auth')
+const { uploadFile } = require('../middlewares/uploadFile')
 
-// Route untuk transaksi
-router.get('/transactions', getTransactions)
-router.post('/transaction', addTransaction)
 
-// Route untuk category
-router.get('/categories', getCategory)
-router.post('/category', addCategory)
-router.get("/detail-category/:id", getDetailCategory)
-router.delete("/category/:id", deleteCategory)
-router.patch("/update-category/:id", updateCategory)
+// ROUTES FOR USER
+router.post("/user" , addUsers)
+router.get("/users", auth , getUsers)
+router.get("/user/:id" , getUser)
+router.patch("/update-user/:id" , updateUser)
+router.delete("/user/:id" , deleteUser)
 
-// Route AUTH
-router.post("/register", register)
 
-module.exports = router;
+// ROUTES FOR PROFILE
+router.get("/profile/:id" , getProfile)
+router.patch("/update-profile/:id" , updateProfile)
+router.post("/profile" , auth , uploadFile('image') , addProfile)
+router.get("/profiles" , auth , getProfiles)
+
+
+// ROUTE FOR PRODUCT
+router.get("/products" , getProducts)
+router.get("/detail-product/:id" , auth , getDetailProduct)
+router.post("/product" , auth , uploadFile('image') , addProduct)
+router.delete("/product/:id",auth , deleteProduct)
+router.patch("/update-product/:id",auth , updateProduct)
+
+
+// ROUTE FOR TRANSACTION
+router.get('/transactions' , auth , getTransactions)
+router.post('/transaction' , auth , addTransaction)
+router.delete('/transaction/:id' , auth , deleteTransaction)
+
+
+// ROUTE FOR CATEGORY
+router.get('/categories' , getCategory)
+router.post('/category' , auth , addCategory)
+router.get("/detail-category/:id" , auth , getDetailCategory)
+router.delete("/category/:id" , auth , deleteCategory)
+router.patch("/update-category/:id" , auth , updateCategory)
+
+
+// ROUTE FOR AUTH
+router.post("/register" , register)
+router.post("/login" , login)
+router.get("/auth" , auth , checkAuth)
+
+module.exports = router

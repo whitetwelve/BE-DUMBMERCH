@@ -1,121 +1,130 @@
-const {category, product} = require('../../models')
+// IMPORT MODELS
+const { category , product } = require('../../models')
 
-exports.getCategory = async (req, res) =>{
+
+exports.getCategory = async (req, res) => {
     try {
         
         const data = await category.findAll({
             include: [
                 {
-                model: product,
-                as: "products",
-                attributes: {
-                    exclude: ["createdAt", "updatedAt"],
-            },
-                },
-        ],
+                model      : product,
+                as         : "products",
+                attributes : {
+                    exclude : [ "createdAt" , "updatedAt" ]
+                    }
+                }
+            ]
         })
 
         res.send({
-            status : "Success!",
-            message : "data Category berhasil ditampilkan!",
-            Category : data
+            status   : "Success!",
+            message  : "Data Category berhasil ditampilkan!",
+            category : data
         })
 
     } catch (error) {
-        console.log(error);
+        console.log(error)
 
         res.send({
-            status: 'Failed!',
+            status  : 'Failed!',
             message :  `Server Error`
         })
         
     }
 }
 
-exports.addCategory = async (req, res) =>{
+
+exports.addCategory = async (req, res) => {
     try {
+
         const data = req.body
+
         await category.create(data)
 
         res.send({
-            status: 'Success',
-            message : 'Data berhasil ditambahkan!',
-            Category : data
+            status   : 'Success',
+            message  : 'Data berhasil ditambahkan!',
+            category : data
         })
 
     } catch (error) {
-        console.log(error);
+        console.log(error)
         
         res.send({
-            status : 'failed',
+            status  : 'failed',
             message : 'Server Error'
         })
     }
 }
 
-exports.getDetailCategory = async (req, res) =>{
+
+exports.getDetailCategory = async (req, res) => {
     try {
+
         const id = req.params.id
 
         const data = await category.findOne({
             where : {
                 id
             },
-            include: {
+            include : {
                 model : product,
-                as : 'products',
+                as    : 'products',
                 attributes: {
-                    exclude: ['createdAt', 'updatedAt']
+                    exclude : [ 'createdAt' , 'updatedAt' ]
                 }
             }
         })
+
         res.send({
-            status : 'Success!',
+            status  : 'Success!',
             message : `Category dengan id ${id} berhasil ditampilkan!`,
             detailCategory : data
         })
     } catch (error) {
-        console.log(error);
+        console.log(error)
 
         res.send({
-            status : 'Failed',
-            message : `Category dengan id ${id} tidak ditemukan! `
+            status  : 'Failed',
+            message : `Category dengan id ${id} tidak ditemukan!`
         })
     }
-
 }
 
-exports.deleteCategory = async (req, res) =>{
+
+exports.deleteCategory = async (req, res) => {
     try {
         const id = req.params.id
 
         const data = await category.findOne({
-            where:{
+            where : {
                 id
             }
         })
 
         if(!data){
             return res.send({
-                message:`Category dengan id ${id} tidak ditemukan!`
+                message :`Category dengan id ${id} tidak ditemukan!`
             })
         }
 
         await category.destroy({
-            where: {
+            where : {
                 id
             }
         })
 
         res.send({
-            status: 'Success',
-            message: `Produk dengan id ${id} berhasil dihapus!`
+            status  : 'Success',
+            message : `Produk dengan id ${id} berhasil dihapus!`
         })
 
     } catch (error) {
-        console.log(error);
+        console.log(error)
+
         res.send({
-            status : 'error',
+            status  : 'error',
             message : 'Server error!'
         })
     }
@@ -124,25 +133,29 @@ exports.deleteCategory = async (req, res) =>{
 
 exports.updateCategory = async (req, res) => {
     try {
+
         const id = req.params.id
         
         const data = req.body
+
         await category.update(data, {
-            where :{
+            where : {
                 id
             }
-        });
+        })
     
         res.send({
-            status: "success",
-            message: `Update data category dengan id : ${id} berhasil!`,
+            status  : "success",
+            message : `Update data category dengan id : ${id} berhasil!`,
             data
-        });
-        } catch (error) {
-        console.log(error);
+        })
+    } 
+    catch (error) {
+        console.log(error)
+
         res.send({
-            status: "failed",
-            message: "Server Error",
-        });
-        }
-    };
+            status  : "failed",
+            message : "Server Error"
+        })
+    }
+}
